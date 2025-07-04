@@ -1,5 +1,4 @@
 import { h, VNode } from "snabbdom";
-import { createMsg } from "../@/msg";
 import { Program, View, Worker } from "../@/program/program";
 import { CurrentScreen } from "./frontend/current-screen";
 import { HomeScreen } from "./home/home-screen";
@@ -7,20 +6,9 @@ import { AccountScreen } from "./user/account-screen";
 import { SendCodeScreen } from "./user/login/send-code-screen";
 import { VerifyCodeScreen } from "./user/login/verify-code-screen";
 
-export type $State = {
-  "app/clicks": number;
-};
-
-const Click = createMsg<{ count: number }>("click");
-
 const worker: Worker = async (input) => {
   CurrentScreen.worker(input);
-
-  input.msgs.takeEvery(Click.is, (msg) => {
-    input.state.write((state) => ({
-      "app/clicks": (state["app/clicks"] ?? 0) + msg.payload.count,
-    }));
-  });
+  SendCodeScreen.worker(input);
 };
 
 const view: View = (input) => {
