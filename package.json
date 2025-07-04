@@ -12,5 +12,7 @@
     "bun-plugin-tailwind": "^0.0.15",
     "tailwindcss": "^4.1.11"
   },
-  "dependencies": {}
+  "dependencies": {
+    "snabbdom": "^3.6.2"
+  }
 }
