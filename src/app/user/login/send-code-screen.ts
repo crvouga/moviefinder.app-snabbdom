@@ -8,7 +8,7 @@ export type $State = {
 
 const worker: Worker = (_input) => {};
 
-const view: View = () => {
+const view: View = (_input) => {
   return h("div", "Send Code");
 };
 
