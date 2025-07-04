@@ -3,6 +3,10 @@ type Predicate<T> = (msg: unknown) => msg is T;
 export type MsgQueue = {
   put: (msg: unknown) => void;
   take: <T>(predicate: Predicate<T>) => Promise<T>;
+  takeEvery: <T>(
+    predicate: Predicate<T>,
+    onMsg: (msg: T) => void
+  ) => Promise<void>;
 };
 
 export const MsgQueue = (): MsgQueue => {
@@ -34,8 +38,19 @@ export const MsgQueue = (): MsgQueue => {
     });
   };
 
+  const takeEvery = async <T>(
+    predicate: Predicate<T>,
+    onMsg: (msg: T) => void
+  ) => {
+    while (true) {
+      const msg = await take(predicate);
+      onMsg(msg);
+    }
+  };
+
   return {
     put,
     take,
+    takeEvery,
   };
 };

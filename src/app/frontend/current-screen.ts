@@ -1,15 +1,15 @@
-import { createMsg } from "../../@/msg";
 import { Worker } from "../../@/program/program";
+import { ChangeScreen, Screen } from "../@/screen";
 
-export type State = {
-  "current-screen/current-screen": string;
+export type $State = {
+  "current-screen/current-screen": Screen;
 };
 
-const ScreenChanged = createMsg<{ screen: string }>("screen-changed");
-
-const worker: Worker<State> = async (input) => {
-  window.addEventListener("hashchange", () => {
-    input.msgs.put(ScreenChanged({ screen: window.location.hash }));
+const worker: Worker = async (input) => {
+  input.msgs.takeEvery(ChangeScreen.is, (msg) => {
+    input.write(() => ({
+      "current-screen/current-screen": msg.payload.screen,
+    }));
   });
 };
 

@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "bun run --hot src/app/backend.ts"
+    "start": "bun run --hot src/app/backend.ts",
+    "cg": "bun run src/@/program/gen.ts"
   },
   "devDependencies": {
     "typescript": "^5.2.2",

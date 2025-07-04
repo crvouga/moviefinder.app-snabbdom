@@ -6,7 +6,9 @@ const server = serve({
   routes: {
     "/": frontend,
   },
-  //   fetch(req) {},
+  fetch(_req) {
+    return Response.redirect("/");
+  },
 });
 
 console.log(`Server running at http://localhost:${server.port}`);
