@@ -11,6 +11,6 @@ const view: View = (input) => {
   ]);
 };
 
-export const Home = {
+export const HomeScreen = {
   view,
 };

@@ -26,7 +26,7 @@ export type Worker = (input: {
     ) => void;
   };
   msgs: MsgQueue;
-}) => Promise<void>;
+}) => Promise<void> | void;
 
 export type View = (input: { state: Partial<$State>; msgs: MsgQueue }) => VNode;
 

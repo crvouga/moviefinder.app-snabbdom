@@ -2,8 +2,10 @@ import { h, VNode } from "snabbdom";
 import { createMsg } from "../@/msg";
 import { Program, View, Worker } from "../@/program/program";
 import { CurrentScreen } from "./frontend/current-screen";
-import { Home } from "./home/home";
-import { Account } from "./user/account";
+import { HomeScreen } from "./home/home-screen";
+import { AccountScreen } from "./user/account-screen";
+import { SendCodeScreen } from "./user/login/send-code-screen";
+import { VerifyCodeScreen } from "./user/login/verify-code-screen";
 
 export type $State = {
   "app/clicks": number;
@@ -26,13 +28,21 @@ const view: View = (input) => {
 };
 
 const viewScreen: View = (input) => {
-  switch (input.state["current-screen/current-screen"]?.t) {
+  const screen = input.state["current-screen/current-screen"];
+  switch (screen?.t) {
     case "home":
-      return Home.view(input);
+      return HomeScreen.view(input);
     case "account":
-      return Account.view(input);
+      return AccountScreen.view(input);
+    case "login":
+      switch (screen.c.t) {
+        case "send-code":
+          return SendCodeScreen.view(input);
+        case "verify-code":
+          return VerifyCodeScreen.view(input);
+      }
     default:
-      return Home.view(input);
+      return HomeScreen.view(input);
   }
 };
 

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "bun run --hot src/app/backend.ts",
-    "cg": "bun run src/@/program/gen.ts"
+    "cg": "bun run src/@/program/gen.ts",
+    "tc": "bun x tsc --noEmit --watch"
   },
   "devDependencies": {
     "typescript": "^5.2.2",
