@@ -15,6 +15,10 @@ const worker: Worker = async (input) => {
 
   const screenQueryParam = QueryParam("screen");
 
+  state.write({
+    "current-screen/current-screen": Screen.decode(screenQueryParam.get()),
+  });
+
   screenQueryParam.subscribe((value) => {
     state.write({ "current-screen/current-screen": Screen.decode(value) });
   });
