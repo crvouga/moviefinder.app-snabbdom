@@ -5,6 +5,7 @@
       "name": "moviefinder-app",
       "dependencies": {
         "snabbdom": "^3.6.2",
+        "zod": "^3.25.72",
       },
       "devDependencies": {
         "@types/bun": "^1.2.18",
@@ -34,5 +35,7 @@
     "typescript": ["typescript@5.8.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="],
 
     "undici-types": ["undici-types@7.8.0", "", {}, "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="],
+
+    "zod": ["zod@3.25.72", "", {}, "sha512-Cl+fe4dNL4XumOBNBsr0lHfA80PQiZXHI4xEMTEr8gt6aGz92t3lBA32e71j9+JeF/VAYvdfBnuwJs+BMx/BrA=="],
   }
 }

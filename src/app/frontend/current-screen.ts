@@ -1,18 +1,31 @@
+import { QueryParam } from "../../@/browser/query-param";
+import { createNamespace } from "../../@/msg";
 import { Worker } from "../../@/program/program";
-import { ChangeScreen, Screen } from "../@/screen";
+import { Screen } from "../@/screen";
 
 export type $State = {
-  "current-screen/current-screen": Screen;
+  "current-screen/current-screen": Screen | null;
 };
 
+const createMsg = createNamespace("current-screen");
+const Push = createMsg<Screen>("push");
+
 const worker: Worker = async (input) => {
-  input.msgs.takeEvery(ChangeScreen.is, (msg) => {
-    input.write(() => ({
-      "current-screen/current-screen": msg.payload.screen,
-    }));
+  const { state, msgs } = input;
+
+  const screenQueryParam = QueryParam("screen");
+
+  screenQueryParam.subscribe((value) => {
+    state.write({ "current-screen/current-screen": Screen.decode(value) });
+  });
+
+  msgs.takeEvery(Push.is, (msg) => {
+    state.write({ "current-screen/current-screen": msg.payload });
+    screenQueryParam.set(Screen.encode(msg.payload));
   });
 };
 
 export const CurrentScreen = {
   worker,
+  Push,
 };

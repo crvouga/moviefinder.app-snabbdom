@@ -3,20 +3,29 @@ type Predicate<T> = (msg: unknown) => msg is T;
 export type MsgQueue = {
   put: (msg: unknown) => void;
   take: <T>(predicate: Predicate<T>) => Promise<T>;
-  takeEvery: <T>(
-    predicate: Predicate<T>,
-    onMsg: (msg: T) => void
-  ) => Promise<void>;
+  takeEvery: <T>(predicate: Predicate<T>, onMsg: (msg: T) => void) => void;
 };
 
 export const MsgQueue = (): MsgQueue => {
   const queue: unknown[] = [];
+  const subscribers: Array<{
+    predicate: Predicate<unknown>;
+    callback: (msg: unknown) => void;
+  }> = [];
   const waiters: Array<{
     predicate: Predicate<unknown>;
     resolve: (msg: unknown) => void;
   }> = [];
 
   const put = (msg: unknown): void => {
+    // First check subscribers
+    subscribers.forEach((sub) => {
+      if (sub.predicate(msg)) {
+        sub.callback(msg);
+      }
+    });
+
+    // Then check waiters
     const waiterIndex = waiters.findIndex((w) => w.predicate(msg));
     if (waiterIndex !== -1) {
       const [waiter] = waiters.splice(waiterIndex, 1);
@@ -38,14 +47,14 @@ export const MsgQueue = (): MsgQueue => {
     });
   };
 
-  const takeEvery = async <T>(
+  const takeEvery = <T>(
     predicate: Predicate<T>,
     onMsg: (msg: T) => void
-  ) => {
-    while (true) {
-      const msg = await take(predicate);
-      onMsg(msg);
-    }
+  ): void => {
+    subscribers.push({
+      predicate,
+      callback: onMsg as (msg: unknown) => void,
+    });
   };
 
   return {
