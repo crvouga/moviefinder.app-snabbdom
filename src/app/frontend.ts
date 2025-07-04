@@ -9,14 +9,18 @@ import { VerifyCodeScreen } from "./user/login/verify-code-screen";
 const worker: Worker = async (input) => {
   CurrentScreen.worker(input);
   SendCodeScreen.worker(input);
+  VerifyCodeScreen.worker(input);
 };
 
 const view: View = (input) => {
-  return viewRoot([viewScreen(input)]);
+  return viewRoot([
+    h("code.monospace", JSON.stringify(input.state, null, 4)),
+    viewScreen(input),
+  ]);
 };
 
 const viewScreen: View = (input) => {
-  const screen = input.state["current-screen/current-screen"];
+  const screen = input.state["screen/current-screen"];
   switch (screen?.t) {
     case "home":
       return HomeScreen.view(input);
@@ -47,6 +51,8 @@ const viewRoot = (children: VNode[]) => {
 const program = Program({
   worker,
   view,
+  // @ts-ignore
+  rpc: {},
 });
 
 program.start();

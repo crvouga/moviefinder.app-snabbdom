@@ -1,7 +1,5 @@
-import { createNamespace } from "../../../@/msg";
 import { View, Worker } from "../../../@/program/program";
 import { TextField } from "../../../@/ui/text-field";
-import { CurrentScreen } from "../../frontend/current-screen";
 import { FormLayout } from "./ui";
 
 export type $State = {
@@ -9,39 +7,50 @@ export type $State = {
   "send-code/result": boolean;
 };
 
-const createMsg = createNamespace("send-code");
-const Msg = {
-  SubmittedForm: createMsg("submitted-form"),
-  InputtedPhone: createMsg<string>("inputted-phone"),
+export type $Msg =
+  | { t: "send-code/submitted-form" }
+  | { t: "send-code/inputted-phone"; phone: string };
+
+const worker: Worker = (input) => {
+  const { msgs, state } = input;
+  msgs.takeEvery(
+    (m) => m.t === "send-code/inputted-phone",
+    (m) => {
+      state.write({ "send-code/phone": m.phone });
+    }
+  );
+  workerSubmitForm(input);
 };
 
-const worker: Worker = ({ msgs, state }) => {
-  msgs.takeEvery(Msg.InputtedPhone.is, (msg) => {
-    state.write({ "send-code/phone": msg.payload });
+const workerSubmitForm: Worker = async ({ msgs, state, rpc }) => {
+  while (true) {
+    await msgs.take((m) => m.t === "send-code/submitted-form");
     state.write({ "send-code/result": true });
-  });
-
-  msgs.takeEvery(Msg.SubmittedForm.is, () => {
-    const s = state.read();
-    const phone = s["send-code/phone"] ?? "";
-    msgs.put(
-      CurrentScreen.Push({ t: "login", c: { t: "verify-code", phone } })
-    );
-  });
+    const phone = state.read()["send-code/phone"] ?? "";
+    const sent = await rpc["login/send-code"](phone);
+    if (sent.t === "err") {
+      return;
+    }
+    msgs.put({
+      t: "screen/push",
+      c: { t: "login", c: { t: "verify-code", phone } },
+    });
+  }
 };
 
 const view: View = (input) => {
   const { msgs, state } = input;
   return FormLayout({
     title: "Send Code",
-    onSubmit: () => msgs.put(Msg.SubmittedForm()),
-    onBack: () => msgs.put(CurrentScreen.Push({ t: "account" })),
+    onSubmit: () => msgs.put({ t: "send-code/submitted-form" }),
+    onBack: () => msgs.put({ t: "screen/push", c: { t: "account" } }),
     children: [
       TextField({
         id: "phone",
         label: "Phone",
+        type: "tel",
         value: state["send-code/phone"] || "",
-        onChange: (phone) => msgs.put(Msg.InputtedPhone(phone)),
+        onChange: (phone) => msgs.put({ t: "send-code/inputted-phone", phone }),
       }),
     ],
   });

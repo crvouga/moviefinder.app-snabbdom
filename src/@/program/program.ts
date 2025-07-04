@@ -7,6 +7,8 @@ import {
   styleModule,
   VNode,
 } from "snabbdom";
+import { $Msg } from "./$msg";
+import { $RPC } from "./$rpc";
 import { $State } from "./$state";
 import { MsgQueue } from "./msg-queue";
 
@@ -18,34 +20,42 @@ const patch = init([
   attributesModule,
 ]);
 
+export type Msgs = MsgQueue<$Msg>;
+
+type StateAtom = {
+  read: () => Partial<$State>;
+  write: (
+    update: Partial<$State> | ((state: Partial<$State>) => Partial<$State>)
+  ) => void;
+};
+
 export type Worker = (input: {
-  state: {
-    read: () => Partial<$State>;
-    write: (
-      update: Partial<$State> | ((state: Partial<$State>) => Partial<$State>)
-    ) => void;
-  };
-  msgs: MsgQueue;
+  state: StateAtom;
+  msgs: Msgs;
+  rpc: $RPC;
 }) => Promise<void> | void;
 
-export type View = (input: { state: Partial<$State>; msgs: MsgQueue }) => VNode;
+export type View = (input: { state: Partial<$State>; msgs: Msgs }) => VNode;
 
-export function Program(config: { worker: Worker; view: View }) {
+export function Program(config: { worker: Worker; view: View; rpc: $RPC }) {
   let state: Partial<$State> = {};
   let vnode: VNode | HTMLElement = document.getElementById("app")!;
-  const msgs = MsgQueue();
+  const msgs: Msgs = MsgQueue<$Msg>();
+
   msgs.takeEvery(
-    (m): m is unknown => Boolean(m),
+    (m): m is $Msg => Boolean(m),
     (m) => {
       console.log("msg", m);
     }
   );
+
   function read() {
     return state;
   }
   function render() {
     vnode = patch(vnode, config.view({ state, msgs }));
   }
+
   function write(
     patchState: Partial<$State> | ((state: Partial<$State>) => Partial<$State>)
   ) {
@@ -58,13 +68,12 @@ export function Program(config: { worker: Worker; view: View }) {
     render();
   }
 
+  const stateAtom: StateAtom = { read, write };
+
   function start() {
     render();
 
-    config.worker({
-      state: { read, write },
-      msgs,
-    });
+    config.worker({ state: stateAtom, msgs, rpc: config.rpc });
   }
 
   return {
