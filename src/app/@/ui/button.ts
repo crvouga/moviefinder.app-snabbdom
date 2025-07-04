@@ -1,6 +1,6 @@
-import { h, VNode } from "snabbdom";
+import { h } from "snabbdom";
 
-const view = (props: { children: VNode[]; onClick: () => void }) => {
+const view = (props: { onClick: () => void; label: string }) => {
   return h(
     "button",
     {
@@ -21,7 +21,7 @@ const view = (props: { children: VNode[]; onClick: () => void }) => {
         click: props.onClick,
       },
     },
-    props.children
+    props.label
   );
 };
 

@@ -13,26 +13,26 @@ const Click = createMsg<{ count: number }>("click");
 
 const worker: Worker = async (input) => {
   CurrentScreen.worker(input);
-  while (true) {
-    const msg = await input.msgs.take(Click.is);
+
+  input.msgs.takeEvery(Click.is, (msg) => {
     input.write((state) => ({
       "app/clicks": (state["app/clicks"] ?? 0) + msg.payload.count,
     }));
-  }
+  });
 };
 
 const view: View = (input) => {
   return viewRoot([
     Button.view({
-      children: [h("span", {}, `Click me ${input.state["app/clicks"] ?? 0}`)],
+      label: `Click me ${input.state["app/clicks"] ?? 0}`,
       onClick: () => input.msgs.put(Click({ count: 7 })),
     }),
     Button.view({
-      children: [h("span", {}, `Home`)],
+      label: `Home`,
       onClick: () => input.msgs.put(ChangeScreen({ screen: { t: "home" } })),
     }),
     Button.view({
-      children: [h("span", {}, `About`)],
+      label: `About`,
       onClick: () => input.msgs.put(ChangeScreen({ screen: { t: "account" } })),
     }),
     h("div", {}, input.state["current-screen/current-screen"]?.t),
