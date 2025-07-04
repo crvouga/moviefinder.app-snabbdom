@@ -15,18 +15,18 @@ const patch = init([
   eventListenersModule,
 ]);
 
-export type Worker<TState extends Record<string, unknown>> = (input: {
+export type Worker<TState> = (input: {
   read: () => Partial<TState>;
   write: (fn: (state: Partial<TState>) => Partial<TState>) => void;
   msgs: MsgQueue;
 }) => Promise<void>;
 
-export type View<TState extends Record<string, unknown>> = (input: {
+export type View<TState> = (input: {
   state: Partial<TState>;
   msgs: MsgQueue;
 }) => VNode;
 
-export const Program = <TState extends Record<string, unknown>>(config: {
+export const Program = <TState>(config: {
   worker: Worker<TState>;
   view: View<TState>;
 }) => {
